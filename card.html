@@ -1,0 +1,216 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Character Index</title>
+    <style>
+        /* Comic book and pop art style */
+        body {
+            font-family: 'Impact', 'Arial Black', sans-serif; /* Bold, comic-like font */
+            background-color: #ff0000; /* Bright red background for pop art vibe */
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            text-transform: uppercase; /* All caps for comic feel */
+        }
+
+        header {
+            text-align: center;
+            background-color: #ffff00; /* Yellow header like comic panels */
+            padding: 20px;
+            border: 5px solid #000;
+            box-shadow: 10px 10px 0 #000; /* Bold black shadow for pop art depth */
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 0;
+            text-shadow: 3px 3px 0 #fff, 6px 6px 0 #000; /* Layered shadow for comic effect */
+        }
+
+        #search {
+            width: 80%;
+            max-width: 600px;
+            padding: 10px;
+            font-size: 1.5em;
+            border: 3px solid #000;
+            background-color: #fff;
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .character-card {
+            background-color: #fff;
+            border: 5px solid #000;
+            padding: 20px;
+            box-shadow: 10px 10px 0 #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.1) 20%, rgba(0,0,0,0.1) 40%, transparent 40%) 0 0 / 10px 10px; /* Halftone dot pattern for pop art */
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .character-card h2 {
+            font-size: 2em;
+            margin: 0 0 10px;
+            color: #ff0000;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .stats {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 10px;
+        }
+
+        .stats li {
+            font-size: 1.2em;
+            background-color: #ffff00;
+            border: 2px solid #000;
+            margin: 5px 0;
+            padding: 5px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .description {
+            font-size: 1em;
+            background-color: #fff;
+            border: 3px solid #000;
+            padding: 10px;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .description::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #000; /* Speech bubble tail */
+        }
+
+        .description::after {
+            content: '';
+            position: absolute;
+            top: -17px;
+            left: 22px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 17px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Marvel Character Index</h1>
+        <input type="text" id="search" placeholder="Search by name...">
+    </header>
+    <div id="characters" class="grid"></div>
+
+    <script>
+        // Sample Marvel character data (hardcoded for demonstration; in a real app, fetch from an API like Marvel's)
+        const characters = [
+            {
+                name: "Spider-Man",
+                strength: 8,
+                power: 7,
+                intelligence: 9,
+                speed: 8,
+                description: "Spider-Man, aka Peter Parker, possesses superhuman strength, agility, and the ability to cling to walls. His spider-sense warns him of danger. Greatest potential: Mastering his intellect and web-slinging to become a global protector against multiversal threats."
+            },
+            {
+                name: "Iron Man",
+                strength: 6,
+                power: 9,
+                intelligence: 10,
+                speed: 7,
+                description: "Iron Man, aka Tony Stark, relies on his high-tech armor for flight, repulsor blasts, and enhanced strength. He's a genius inventor. Greatest potential: Innovating armor to god-like levels, defending Earth from cosmic invasions with unlimited energy sources."
+            },
+            {
+                name: "Captain America",
+                strength: 7,
+                power: 5,
+                intelligence: 8,
+                speed: 6,
+                description: "Captain America, aka Steve Rogers, has peak human strength, agility, and an indestructible shield. He's a master strategist. Greatest potential: Leading heroes in world-altering battles, symbolizing unbreakable will against tyranny."
+            },
+            {
+                name: "Thor",
+                strength: 10,
+                power: 10,
+                intelligence: 7,
+                speed: 9,
+                description: "Thor, the God of Thunder, wields Mjolnir for lightning control, super strength, and flight. He's immortal and durable. Greatest potential: Harnessing Odinforce to reshape realities and protect the Nine Realms from Ragnarok-level events."
+            },
+            {
+                name: "Black Widow",
+                strength: 5,
+                power: 4,
+                intelligence: 9,
+                speed: 7,
+                description: "Black Widow, aka Natasha Romanoff, is a master spy with expert martial arts, gadgets, and espionage skills. Greatest potential: Infiltrating and dismantling global threats with unparalleled cunning and alliances."
+            }
+            // Add more characters as needed
+        ];
+
+        const charactersContainer = document.getElementById('characters');
+        const searchInput = document.getElementById('search');
+
+        // Function to display characters
+        function displayCharacters(filteredCharacters) {
+            charactersContainer.innerHTML = '';
+            filteredCharacters.forEach(char => {
+                const card = document.createElement('div');
+                card.classList.add('character-card');
+                card.innerHTML = `
+                    <h2>${char.name}</h2>
+                    <ul class="stats">
+                        <li>Strength: ${char.strength}/10</li>
+                        <li>Power: ${char.power}/10</li>
+                        <li>Intelligence: ${char.intelligence}/10</li>
+                        <li>Speed: ${char.speed}/10</li>
+                    </ul>
+                    <div class="description">${char.description}</div>
+                `;
+                charactersContainer.appendChild(card);
+            });
+        }
+
+        // Initial display
+        displayCharacters(characters);
+
+        // Search functionality
+        searchInput.addEventListener('keyup', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = characters.filter(char => char.name.toLowerCase().includes(searchTerm));
+            displayCharacters(filtered);
+        });
+    </script>
+</body>
+</html>
